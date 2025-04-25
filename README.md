@@ -1,2 +1,2 @@
 # Study materials and source code for **Droidcon Academy** course 
-> # Add Course Name 
+> # Mastering State Management in Kotlin Multiplatform (KMP) and Compose Multiplatform (CMP)   
