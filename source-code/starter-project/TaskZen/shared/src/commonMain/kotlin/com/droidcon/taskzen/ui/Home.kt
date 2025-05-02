@@ -45,28 +45,10 @@ fun Home(
     onAddTaskClick: () -> Unit,
     onTaskClick: (Task) -> Unit,
 ) {
-    val taskViewModel: TaskViewModel = koinViewModel()
-    val viewState by taskViewModel.tasksViewState.collectAsState()
 
-    val tasks = viewState.tasks
-    val selectedFilter = viewState.selectedFILTER
-    val selectedSort = viewState.selectedSORT
-
-    LaunchedEffect(Unit) {
-        taskViewModel.fetchTasks()
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        HomePageContent(
-            modifier = Modifier,
-            tasks = tasks,
-            selectedFilter = selectedFilter,
-            selectedSort = selectedSort,
-            onTaskClick = onTaskClick,
-            onMarkAsComplete = taskViewModel::onMarkAsComplete,
-            onFilterClick = taskViewModel::selectedFilter,
-            onSortClick = taskViewModel::selectedSort
-        )
+        EmptyTodo()
         AddTaskButton(
             Modifier
                 .align(Alignment.BottomEnd)
@@ -76,81 +58,6 @@ fun Home(
                     onAddTaskClick()
                 }
         )
-    }
-}
-
-@Composable
-fun HomePageContent(
-    modifier: Modifier,
-    tasks: List<Task>,
-    selectedFilter: FILTER,
-    selectedSort: SORT,
-    onTaskClick: (Task) -> Unit,
-    onMarkAsComplete: (Task, Boolean) -> Unit,
-    onFilterClick: (FILTER) -> Unit = {},
-    onSortClick: (SORT) -> Unit = {},
-) {
-
-    val sortedTask by derivedStateOf {
-        val filtered = tasks.filter {
-            when (selectedFilter) {
-                FILTER.ALL -> true
-                FILTER.COMPLETED -> it.isCompleted
-                FILTER.UNCOMPLETED -> !it.isCompleted
-            }
-        }
-
-        when (selectedSort) {
-            SORT.LATEST -> filtered.sortedByDescending { it.updatedAt }
-            SORT.OLDEST -> filtered.sortedBy { it.updatedAt }
-            SORT.COMPLETED -> filtered.sortedBy { if (it.isCompleted) 0 else 1 }
-            SORT.UNCOMPLETED -> filtered.sortedBy { if (it.isCompleted) 1 else 0 }
-            SORT.DUE_DATE -> filtered.sortedBy { it.dueDate ?: Long.MAX_VALUE }
-        }
-    }
-
-    Column {
-        Spacer(Modifier.height(26.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(Res.drawable.filter_icon),
-                contentDescription = "filter",
-                modifier = Modifier
-                    .size(42.dp)
-                    .clickable {  }
-            )
-            Spacer(Modifier.width(20.dp))
-
-            FilterButton(
-                title = "Filter",
-                selected = selectedFilter.name,
-                onClick = {
-                    onFilterClick(FILTER.entries.next(selectedFilter))
-                }
-            )
-
-            Spacer(Modifier.width(20.dp))
-
-            FilterButton(
-                title = "Sort",
-                selected = selectedSort.name,
-                onClick = {
-                    onSortClick(SORT.entries.next(selectedSort))
-                }
-            )
-        }
-        Spacer(Modifier.height(20.dp))
-        if (sortedTask.isEmpty()) {
-            EmptyTodo(modifier)
-        } else {
-            TaskListScreen(
-                sortedTask,
-                onMarkAsComplete = onMarkAsComplete,
-                openTask = { task ->
-                    onTaskClick(task)
-                },
-            )
-        }
     }
 }
 

@@ -14,21 +14,5 @@ fun TaskListScreen(
     onMarkAsComplete: (Task, Boolean) -> Unit,
     openTask: (Task) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(tasks.size) { index ->
-                TaskElement(
-                    task = tasks[index],
-                    onMarkAsComplete = {
-                        onMarkAsComplete(tasks[index], it)
-                    },
-                    onClick = {
-                        openTask(tasks[index])
-                    }
-                )
-            }
-        }
-    }
+
 }
