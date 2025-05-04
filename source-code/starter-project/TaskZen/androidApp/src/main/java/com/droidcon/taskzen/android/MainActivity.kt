@@ -8,9 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.droidcon.taskzen.models.Task
 import com.droidcon.taskzen.models.TaskCategory
-import com.droidcon.taskzen.ui.App
-import com.droidcon.taskzen.ui.CategoryPicker
-import com.droidcon.taskzen.ui.TaskElement
+import com.droidcon.taskzen.ui.home.App
+import com.droidcon.taskzen.ui.shared.CategoryPicker
+import com.droidcon.taskzen.ui.task.TaskElement
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

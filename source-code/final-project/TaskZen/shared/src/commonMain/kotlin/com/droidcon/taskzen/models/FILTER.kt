@@ -1,6 +1,6 @@
 package com.droidcon.taskzen.models
 
-enum class FILTER {
+enum class Filter {
     ALL,
     COMPLETED,
     UNCOMPLETED,
