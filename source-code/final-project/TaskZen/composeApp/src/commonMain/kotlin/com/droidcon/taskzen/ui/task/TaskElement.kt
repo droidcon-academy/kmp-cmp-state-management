@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.droidcon.taskzen.getContrastingTextColor
 import com.droidcon.taskzen.models.Task
+import com.droidcon.taskzen.toLocalDateTime
 import com.droidcon.taskzen.toRemainingTime
 import com.droidcon.taskzen.ui.theme.lightText
 import kotlinx.coroutines.delay

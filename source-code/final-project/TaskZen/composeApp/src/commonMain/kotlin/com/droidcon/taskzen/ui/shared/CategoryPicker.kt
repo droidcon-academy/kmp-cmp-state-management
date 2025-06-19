@@ -22,7 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.droidcon.taskzen.models.TaskCategory
 import com.droidcon.taskzen.ui.theme.secondary
+import com.droidcon.taskzen.viewmodels.TaskViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun CategoryPicker(onSelected: (TaskCategory) -> Unit, onDismiss: () -> Unit) {

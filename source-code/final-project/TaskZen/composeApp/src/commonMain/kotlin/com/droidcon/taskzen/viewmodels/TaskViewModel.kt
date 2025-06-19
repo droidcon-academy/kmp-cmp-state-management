@@ -54,8 +54,27 @@ class TaskViewModel(
 
     fun fetchTasks() {
         viewModelScope.launch {
+            val tasks = taskRepository.getAllTasks()
+            val selectedFilter = _taskListUiState.value.selectedFilter
+            val selectedSort = _taskListUiState.value.selectedSort
+            val filteredTasks = tasks.filter {
+                when (selectedFilter) {
+                    Filter.ALL -> true
+                    Filter.COMPLETED -> it.isCompleted
+                    Filter.UNCOMPLETED -> !it.isCompleted
+                }
+            }
+
+            val sortedTasks = when (selectedSort) {
+                Sort.LATEST -> filteredTasks.sortedByDescending { it.updatedAt }
+                Sort.OLDEST -> filteredTasks.sortedBy { it.updatedAt }
+                Sort.COMPLETED -> filteredTasks.sortedBy { if (it.isCompleted) 0 else 1 }
+                Sort.UNCOMPLETED -> filteredTasks.sortedBy { if (it.isCompleted) 1 else 0 }
+                Sort.DUE_DATE -> filteredTasks.sortedBy { it.dueDate ?: Long.MAX_VALUE }
+            }
+
             _taskListUiState.value = _taskListUiState.value.copy(
-                tasks = taskRepository.getAllTasks(),
+                tasks = sortedTasks,
             )
         }
     }
@@ -126,12 +145,14 @@ class TaskViewModel(
         _taskListUiState.value = _taskListUiState.value.copy(
             selectedFilter = filter,
         )
+        fetchTasks()
     }
 
     fun selectedSort(sort: Sort) {
         _taskListUiState.value = _taskListUiState.value.copy(
             selectedSort = sort,
         )
+        fetchTasks()
     }
 }
 

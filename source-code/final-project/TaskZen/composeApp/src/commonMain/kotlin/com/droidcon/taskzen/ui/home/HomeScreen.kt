@@ -1,5 +1,6 @@
 package com.droidcon.taskzen.ui.home
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,12 +14,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,10 +58,19 @@ fun Home(
         taskViewModel.fetchTasks()
     }
 
+    val listState: LazyListState = rememberLazyListState()
+
+    val showButton by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         HomePageContent(
             modifier = Modifier,
             tasks = tasks,
+            listState = listState,
             selectedFilter = selectedFilter,
             selectedSort = selectedSort,
             onTaskClick = onTaskClick,
@@ -65,15 +78,21 @@ fun Home(
             onFilterClick = taskViewModel::selectedFilter,
             onSortClick = taskViewModel::selectedSort
         )
-        AddTaskButton(
-            Modifier
+
+        AnimatedVisibility(
+            visible = showButton,
+            modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(26.dp)
-                .padding(bottom = 34.dp)
-                .clickable {
-                    onAddTaskClick()
-                }
-        )
+        ) {
+            AddTaskButton(
+                Modifier
+                    .padding(26.dp)
+                    .padding(bottom = 34.dp)
+                    .clickable {
+                        onAddTaskClick()
+                    }
+            )
+        }
     }
 }
 
@@ -81,6 +100,7 @@ fun Home(
 fun HomePageContent(
     modifier: Modifier,
     tasks: List<Task>,
+    listState: LazyListState,
     selectedFilter: Filter,
     selectedSort: Sort,
     onTaskClick: (Task) -> Unit,
@@ -89,22 +109,8 @@ fun HomePageContent(
     onSortClick: (Sort) -> Unit = {},
 ) {
 
-    val sortedTask by derivedStateOf {
-        val filtered = tasks.filter {
-            when (selectedFilter) {
-                Filter.ALL -> true
-                Filter.COMPLETED -> it.isCompleted
-                Filter.UNCOMPLETED -> !it.isCompleted
-            }
-        }
-
-        when (selectedSort) {
-            Sort.LATEST -> filtered.sortedByDescending { it.updatedAt }
-            Sort.OLDEST -> filtered.sortedBy { it.updatedAt }
-            Sort.COMPLETED -> filtered.sortedBy { if (it.isCompleted) 0 else 1 }
-            Sort.UNCOMPLETED -> filtered.sortedBy { if (it.isCompleted) 1 else 0 }
-            Sort.DUE_DATE -> filtered.sortedBy { it.dueDate ?: Long.MAX_VALUE }
-        }
+    LaunchedEffect(selectedFilter, selectedSort, tasks) {
+        listState.requestScrollToItem(0)
     }
 
     Column {
@@ -131,11 +137,12 @@ fun HomePageContent(
             )
         }
         Spacer(Modifier.height(20.dp))
-        if (sortedTask.isEmpty()) {
+        if (tasks.isEmpty()) {
             EmptyTodo(modifier)
         } else {
             TaskListScreen(
-                sortedTask,
+                tasks,
+                listState,
                 onMarkAsComplete = onMarkAsComplete,
                 openTask = { task ->
                     onTaskClick(task)

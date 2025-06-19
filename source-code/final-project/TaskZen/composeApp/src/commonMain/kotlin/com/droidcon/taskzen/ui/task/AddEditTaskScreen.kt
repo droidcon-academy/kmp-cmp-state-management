@@ -50,8 +50,38 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun AddEditTaskScreen(
-    taskId: Long?,
+fun AddTaskScreen(
+    onBackClick: () -> Unit,
+) {
+    val taskViewModel: TaskViewModel = koinViewModel()
+
+    val taskDetailUiState by taskViewModel.taskDetailUiState.collectAsStateWithLifecycle()
+
+    DisposableEffect(Unit) {
+        taskViewModel.getTask(null)
+
+        onDispose {
+            taskViewModel.onDismiss()
+        }
+    }
+
+    taskDetailUiState.currentTask?.let {
+        AddEditTaskContent(
+            it,
+            updateTitle = { taskViewModel.updateTaskTitle(it) },
+            updateDescription = { taskViewModel.updateTaskDescription(it) },
+            updateCategory = { taskViewModel.updateTaskCategory(it) },
+            updateDueDate = { taskViewModel.updateTaskDueDate(it) },
+            onBackClick = onBackClick,
+            onSaveClick = { taskViewModel.addTask(it) },
+            onDelete = { taskViewModel.deleteTask(it) }
+        )
+    }
+}
+
+@Composable
+fun EditTaskScreen(
+    taskId: Long,
     onBackClick: () -> Unit,
 ) {
     val taskViewModel: TaskViewModel = koinViewModel()
